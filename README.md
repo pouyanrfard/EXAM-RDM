@@ -2,6 +2,7 @@
 The code required to reproduce the results of the study "Fard et. al (2021), Spatiotemporal Modeling of Response Consistency with Incoherent Motion Stimuli in Perceptual Decision Making"
 
 Author: Pouyan R. Fard
+
 Email: pouyan.rafieifard@gmail.com
          
 ## Requirements

@@ -1,4 +1,4 @@
-% The script "test_prepare_fit_data.m" creates the data used to fit the
+% The script "test_prepare_fit_data_zero_coherence.m" creates the data used to fit the
 % computational models to the behavioral data used used in "Fard et al. (2021),
 % Spatiotemporal Modeling of Response Consistency with Incoherent Motion 
 % Stimuli in Perceptual Decision Making, In submission".

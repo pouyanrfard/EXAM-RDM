@@ -21,8 +21,11 @@ To successfuly reproduce the figures used in the publication, you have to first 
  2. Install Matlab
  3. Install Anaconda
  4. Install the VBA Toolbox:
+ 
 	 4.1. Download the [VBA Toolbox](https://mbb-team.github.io/VBA-toolbox/download/) 
+	 
 	 4.2. Unzip the downloaded zip file
+	 
 	 4.3. Run the VBA_setup.m via Matlab
 5. Clone this Git repository in a proper folder drive via by operating the following procedure in the command line: 
 

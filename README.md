@@ -115,7 +115,7 @@ After successful setup of the environment you can reproduce the results of the p
 
 
 **Reproduce model fitting analysis for 0% coherence:**
-1. Run prepareFitData_norm_dc_zeroCons.m
+1. Run test_prepare_fit_data_zero_coherence.m
 2. Run test_model_inference_zero_coherence.py
 
 **Reproduce model fitting analysis for non-zero % coherence:**

@@ -1,12 +1,54 @@
-clear all; close all; clc;
+% The script "test_prepare_fit_data.m" creates the data used to fit the
+% computational models to the behavioral data used used in "Fard et al. (2021),
+% Spatiotemporal Modeling of Response Consistency with Incoherent Motion 
+% Stimuli in Perceptual Decision Making, In submission".
+% The script first loads all the data from computational models fitted to
+% the behavioral data for each participant. This may include parameters 
+% related to the posterior distributions (mean and standard deviation for
+% the posterior distribution) estimated for each participant in each 
+% coherence level and the model marginal likelihood. Afterwards, the script
+% uses Bayesian model comparison (using VBA toolbox) 
+% to provide the metrics for explanatory power of each computational model
+% (DDM and EXaM) to explain the behavioral data in each coherence level. 
+% The resulting model evidence variables (protected exceedance probability
+% and model frequency) are visualized to compare the explanatory power of
+% the models. In addition, the script computes the mean and standard 
+% deviations of estimated posterior parameter distributions and conducts
+% a t-test to provide significant differences between the estimated
+% parameter values between the DDM and EXaM. 
+
+%dependencies: 
+% 1. VBA Toolbox: The VBA toolbox must be installed and added to MATLAB 
+% path to conduct the Bayesian model comparison please refer to:
+% https://github.com/MBB-team/VBA-toolbox
+% 2. The model fits: the model fits are prepared using the library 
+% pyEPABC % (http://github.com/sbitzer/pyEPABC) in a % separate Python 
+% script. The outcomes of model fits are stored in the % folder 
+% "model_fit_data". 
+
+%Hint: Please make sure that this script is placed next to the folder
+%"model_fit_data", "behavioral_data", "analysis_data", "experiment_design", 
+% and "functions".
+%The script may take a few minutes to run depending on your system
+%specifications.
+%
+% Author: Pouyan Rafieifard (January 2021)
+
+clear all; 
+close all;
+clc;
+addpath('functions');
+
+%% Intialization of the variables used in the analysis
 
 condTrials=[240 240 160 160]; %number of trial per cond
 numTrials=800;
 numConds=1;
 
-load('stimulusFeatures_base.mat','designMatrix_base','zeroDotFeatures_dc_base');
-load('zeroSeedsFinal_2_2.mat','zeroSeeds','zeroSeeds_conditions');
-
+% load the experimental design data
+load('..//experiment_design//stimulus_features_base.mat','designMatrix_base','zeroDotFeatures_dc_base','zeroSeeds');
+load('..//experiment_design//stimulus_types_random_seeds.mat','zeroSeeds');
+load('..//experiment_design//stimulus_types_random_seeds_conditions.mat','zeroSeeds_conditions');
 
 zeroDotFeatures_dc_set=cell(1,numConds);
 zeroDotFeatures_std_dc_cond=nan(1,numConds);
@@ -70,7 +112,7 @@ for condIdx=1:numConds
         conditions=nan(1,numTrialsCond);
         averageFeatures=cell(1,numTrialsCond);
         
-        loadStrGen=strcat('expData2\\data_subj_',num2str(subjectNo),'_genExp','.mat');
+        loadStrGen=strcat('..\\behavioral_data\\data_subj_',num2str(subjectNo),'_genExp','.mat');
         load(loadStrGen,'subjectNo','designMatrix')
 
         designMatrixSubj=designMatrix;
@@ -87,7 +129,7 @@ for condIdx=1:numConds
             trialIdx=condTr(trialNo);
 
             %load the experimental data     
-            load(strcat('expData2\\data_subj_',num2str(subjectNo),'_trial_',num2str(trialIdx),'.mat'))
+            load(strcat('..\\behavioral_data\\data_subj_',num2str(subjectNo),'_trial_',num2str(trialIdx),'.mat'))
             
 
             if(resp>0 && RT<=2)
@@ -136,7 +178,7 @@ for condIdx=1:numConds
         end
             
         
-        save(strcat('new model\\fitData\\fitData_sub_',num2str(subjectNo),'_cond_',num2str(condIdx),'_dc_norm_final_2.mat'),...
+        save(strcat('..\\test_model_fit_data\\fitData_sub_',num2str(subjectNo),'_cond_',num2str(condIdx),'_dc_norm_final_2.mat'),...
             'choices','rts','trueA','seeds','features','conditions','averageFeatures');
 
     end

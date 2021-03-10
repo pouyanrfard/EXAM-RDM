@@ -314,8 +314,8 @@ if __name__ == "__main__":
         #run_behavioral_fit(15,1,0)  
         featuresTypes=np.array([1]) #0 for motion energy, 1 for dot counts
         
-        for subIdx in range(10,11):#len(selSubs)): #subjects
-            for condIdx in range(len(conditions)): #conditions
+        for subIdx in range(len(selSubs)): #subjects
+            for condIdx in range(1,len(conditions)): #conditions
                 for runIdx in range(5,10):
                     
                     run=runIdx+1

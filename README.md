@@ -117,3 +117,4 @@ After successful setup of the environment you can reproduce the results of the p
 **Reproduce model fitting analysis for non-zero % coherence:**
 1. Run test_prepare_fit_data.m
 2. Run test_model_inference_non_zero_coherence.py
+3. 

@@ -64,7 +64,7 @@ After successful setup of the environment you can reproduce the results of the p
 
 **Reproduce Figure 3:**
 1. Run behavioral_analysis.m
-2. Run plot_response_consistency_figure_2.py
+2. Run plot_stimulus_type_clustering_figure_3.py
 
 **Reproduce Figure 4:** 
 1. Run model_comparison_all_participants.m

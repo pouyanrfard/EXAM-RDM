@@ -32,11 +32,13 @@ To successfuly reproduce the figures used in the publication, you have to first 
 7. **Only required if you plan to re-fit the model to the data:** Install the [Py-EPABC](https://github.com/sbitzer/pyEPABC) as a Python library using the following procedure in the command line:
 
 `git clone https://github.com/sbitzer/pyEPABC`
+
 `python setup.py install`
 
 8. **Only required if you plan to re-fit the model to the data:** Install the [rtmodels](https://github.com/sbitzer/rtmodels)  as a Python library using the following procedure in the command line:
 
 `git clone https://github.com/sbitzer/rtmodels`
+
 `python setup.py develop`
 
 9. **RECOMMENDED:** Install all the dependencies in Python first by navigating to the main repositoryfolder in command line and then using the following command: 

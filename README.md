@@ -11,7 +11,7 @@ Email: pouyan.rafieifard@gmail.com
  - [Anaconda 3](https://www.anaconda.com/products/individual/download-success) or a distribution of Python 3.7 
  - [VBA Toolbox](https://mbb-team.github.io/VBA-toolbox/) 
  - [Matlab library for false discovery rate control procedure for a set of statistical tests](https://www.mathworks.com/matlabcentral/fileexchange/27418-fdr_bh)
- -  [Py-EPABC](https://github.com/sbitzer/pyEPABC) bt Sebastian Bitzer
+ -  [Py-EPABC](https://github.com/sbitzer/pyEPABC) by Sebastian Bitzer
  -  [rtmodel](https://github.com/sbitzer/rtmodels) by Sebastian Bitzer
 
 ## Setup

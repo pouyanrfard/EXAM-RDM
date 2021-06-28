@@ -182,21 +182,31 @@ def run_behavioral_fit(sub,cond,aper,featureType,run,recovery,
 
 if __name__ == "__main__":
 
+        #selected participants according to the criteria mentioned in the Methods (see manuscript)    
         selSubs=np.array([62,63,64,65,66,67,71,74,76,77,80,82,84,85,86,90,91,92,93,94,95,96,
                           97,100,101,102,104,105,107,109,110,111,112,114,119,120,121,123,124,126,127,128,129,130])
         
+        #specifiying the parameters of model fitting
         conditions=np.array([1])
-        apers=np.array([0,12]) #0,3,5,12
+        apers=np.array([0,12]) 
         featuresTypes=np.array([0,1]) #0 for motion energy, 1 for dot counts
         recovery=0
-        for subIdx in range(len(selSubs)): #subjects
-            for runIdx in range(5):
-                    
-                run=runIdx+1
                 
-                sub=selSubs[subIdx]
-                cond=conditions[0]                    
-                aper=apers[1]
-                featureType=featuresTypes[1]
-                print('running fit for sub: ',sub,' cond: ',cond,' aper: ',aper,'feature',featureType)                    
-                run_behavioral_fit(sub,cond,aper,featureType,run,recovery)  
+        for subIdx in range(len(selSubs)): #subjects
+            #reset the counter for model runs in every iteration
+            run=1
+            while run<=5:        
+                #if the model fitting runs without exceptions go to next iteration
+                try:                
+                    sub=selSubs[subIdx]
+                    cond=conditions[0]                    
+                    aper=apers[1]
+                    featureType=featuresTypes[1]
+                    print('running fit for sub: ',sub,' cond: ',cond,' aper: ',aper,'feature:',featureType, ' run:', run)                    
+                    run_behavioral_fit(sub,cond,aper,featureType,run,recovery)
+                    run=run+1
+                except:
+                    print('\n-------------------------')
+                    print('EP-ABC model fitting interrupted, re-runing the model fit')
+                    print('-------------------------')
+                    pass

@@ -304,27 +304,35 @@ def run_behavioral_fit(sub,cond,aper,featureType,run,recovery,
 
 if __name__ == "__main__":
         
-
+        #selected participants according to the criteria mentioned in the Methods (see manuscript)    
         selSubs=np.array([62,63,64,65,66,67,71,74,76,77,80,82,84,85,86,90,91,92,93,94,95,96,
                   97,100,101,102,104,105,107,109,110,111,112,114])
+        
+        #specifiying the parameters of model fitting
         conditions=np.array([1,2,3,4])
         apers=np.array([0,12]) #0,3,5,12
         recovery=0
-        
-        #run_behavioral_fit(15,1,0)  
         featuresTypes=np.array([1]) #0 for motion energy, 1 for dot counts
         
         for subIdx in range(len(selSubs)): #subjects
             for condIdx in range(1,len(conditions)): #conditions
-                for runIdx in range(5,10):
-                    
-                    run=runIdx+1
-                                        
-                    #fit the random walk model only once to the data
-                    sub=selSubs[subIdx]
-                    cond=conditions[condIdx]                    
-                    aper=apers[0]
-                    featureType=featuresTypes[0]
-                    print('running fit for sub: ',sub,' cond: ',cond,' aper: ',aper,'feature',featureType)                    
-                    run_behavioral_fit(sub,cond,aper,featureType,run,recovery)  
+                run=1
+                while run<=5:
+                    #if the model fitting runs without exceptions go to next iteration
+                    try:                    
+                        #fit the random walk model only once to the data
+                        sub=selSubs[subIdx]
+                        cond=conditions[condIdx]                    
+                        aper=apers[0]
+                        featureType=featuresTypes[0]
+                        print('running fit for sub: ',sub,' cond: ',cond,' aper: ',aper,'feature: ',featureType,' run: ', run)                    
+                        run_behavioral_fit(sub,cond,aper,featureType,run,recovery)  
+                        run=run+1
+                    except:
+                        print('\n-------------------------')
+                        print('EP-ABC model fitting interrupted, re-runing the model fit')
+                        print('-------------------------')
+                        pass
+                        
 
+                

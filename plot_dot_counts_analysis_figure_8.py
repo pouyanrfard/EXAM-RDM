@@ -137,7 +137,7 @@ ax22.set_ylim([-3,3])
 
 
 ax22.set_xlabel('Coherence level')
-ax22.set_ylabel('Proportion of coherent dot motions')
+ax22.set_ylabel('Average normalized dot counts')
 
 ax21.annotate('C', xy=(.51, .46),xycoords='figure fraction',
                 horizontalalignment='left', verticalalignment='top',

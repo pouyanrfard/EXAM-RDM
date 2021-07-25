@@ -129,7 +129,7 @@ class leaky_accumulation_model(rtmodel):
                      'model. Update Trials!')
             self._D = D
 
-    parnames = ['scale', 'scalestd', 'bound', 'noisestd', 'bias', 'ndtmean', 'ndtspread', 
+    parnames = ['scale', 'scalestd', 'bound', 'noisestd', 'bias', 'biasstd','ndtmean', 'ndtspread', 
                 'leak', 'lapseprob','lapsetoprob']
 
     @property
@@ -152,7 +152,7 @@ class leaky_accumulation_model(rtmodel):
     indexedpar_re = re.compile(r'([a-zA-Z_]*[a-zA-Z]+)_?(\d)?')
 
     def __init__(self, Trials, conditions=0, dt=0.1, means=None, scale=1, 
-                 scalestd=0, bound=0.1, bias=0, noisestd=0.1, ndtmean=0, 
+                 scalestd=0, bound=0.1, bias=0, biasstd=0, noisestd=0.1, ndtmean=0, 
                  leak=0, ndtspread=0, lapseprob=0.05, lapsetoprob=0.1, 
                  **rtmodel_args):
         super(leaky_accumulation_model, self).__init__(**rtmodel_args)
@@ -226,6 +226,9 @@ class leaky_accumulation_model(rtmodel):
         
         # bias toward one of the choices.
         self.bias = bias
+        
+        # tandard deviation of bias
+        self.biasstd = biasstd
             
         # Mean of nondecision time.
         self.ndtmean = ndtmean
@@ -405,7 +408,7 @@ class leaky_accumulation_model(rtmodel):
         choicesOut, rts = gen_response_jitted_lam(
                 self.dt, features, self.S, toresponse_intern, self.maxrt, 
                 allpars['scale'],allpars['scalestd'], allpars['bound'], allpars['bias'], 
-                allpars['noisestd'], allpars['ndtmean'], allpars['ndtspread'], 
+                allpars['biasstd'],allpars['noisestd'], allpars['ndtmean'], allpars['ndtspread'], 
                 allpars['leak'], allpars['lapseprob'],allpars['lapsetoprob'])
         
         return choicesOut, rts
@@ -488,7 +491,7 @@ class leaky_accumulation_model(rtmodel):
 
 @jit(nopython=True, cache=True)
 def gen_response_jitted_lam(dt, features, S, toresponse, maxrt, scale, scalestd,
-                            bound, bias, noisestd, ndtmean, ndtspread, leak,
+                            bound, bias, biasstd, noisestd, ndtmean, ndtspread, leak,
                             lapseprob, lapsetoprob):
     
     S, D, N = features.shape
@@ -515,7 +518,12 @@ def gen_response_jitted_lam(dt, features, S, toresponse, maxrt, scale, scalestd,
                 choicesOut[tr] = random.randint(0, C-1)
                 rts[tr] = random.random() * maxrt
         else:
-            logEVTr = bias[tr] * bound[tr]
+            
+            biasTrVal=np.random.uniform(bias[tr] - biasstd[tr] / 2,
+                                         bias[tr] + biasstd[tr] / 2)
+            
+                
+            logEVTr = biasTrVal * bound[tr]
                     
             for t in range(1, S+1):
                 # if a current feature is -Inf, respond with time out (default)

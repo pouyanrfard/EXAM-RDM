@@ -1,4 +1,4 @@
-ta#!/usr/bin/env python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Created on Wed Jan 31 14:43:46 2018
@@ -13,6 +13,7 @@ from pyEPABC.parameters import exponential, gaussprob, zero
 import stimulus_DDMs
 import scipy.io as sio
 import matplotlib.pyplot as plt
+
 
 
 def run_behavioral_fit(sub,cond,aper,featureType,run,recovery, 
@@ -36,39 +37,34 @@ def run_behavioral_fit(sub,cond,aper,featureType,run,recovery,
     
     means = np.r_[-0.1, 0.1]
     
-    
     choices=mat_contents['choices']
     rts=mat_contents['rts']
     conditions=mat_contents['conditions']
     
-    features=mat_contents['features']
     
-    featuresIn=np.empty((N,S))
+    if(aper==0):
+        features=mat_contents['averageFeatures']
+    else:
+        features=mat_contents['features']
+    
+    
+    featuresIn=np.empty((N,S+1))
     featBaseline=-np.inf
     
-    if(aper>0):
-        for tr in range(N):
-            for t in range(S):
-                if(t<len(features[tr])):
-                    featuresIn[tr][t]=features[tr][t]
-                else:
-                    featuresIn[tr][t]=featBaseline
-    else:
-        trialMeans = means[np.random.randint(2, size=N)]
-        for tr in range(N):
-           featuresIn[tr,:]=trialMeans[tr]*np.ones(S)
+    for tr in range(N):
+        for t in range(S+1):
+            if(t<len(features[tr])):
+                featuresIn[tr][t]=features[tr][t]
+            else:
+                featuresIn[tr][t]=featBaseline
+
     
            
     featuresIn=np.transpose(featuresIn)
     featuresOut=np.reshape(featuresIn,(featuresIn.shape[0],1,featuresIn.shape[1]))
     
-    #print(featuresOut)
-    
-    if(aper>0):
-        Trials=featuresOut
-    else:
-        Trials = featuresOut / np.std(featuresOut)
-    
+    Trials=featuresOut
+        
     #%% fit the data with pyEPABC
     # make a fit model so that you can set it with independent parameters
     fitmodel = stimulus_DDMs.leaky_accumulation_model(
@@ -77,13 +73,21 @@ def run_behavioral_fit(sub,cond,aper,featureType,run,recovery,
     
     pars = pyEPABC.parameters.parameter_container()
     # add scale twice with the same transform and prior adding scale_0 and scale_1
-    pars.add_param('scale', 0, 1, zero(), multiples=2)
-    pars.add_param('bound', np.log(.1), 1, exponential())
+    
+    pars.add_param('scale', 0, 0.1, zero(), multiples=2)#0,0.1
+    pars.add_param('scalestd', np.log(.05), 0.5, exponential())
+    pars.add_param('bound', np.log(.05), 1, exponential())
     pars.add_param('bias', 0, 0.5)
+    pars.add_param('biasstd', np.log(0.02), 0.5,exponential())
     pars.add_param('ndtmean', -2, 1,exponential())
     pars.add_param('ndtspread', -2.5, 1, exponential())
+    #pars.add_param('leak', -1, 1, gaussprob())
     pars.add_param('lapseprob', -1.65, 1, gaussprob()) # median approx at 0.05
     pars.add_param('lapsetoprob', 0, 1, gaussprob())
+    
+    pg = pars.plot_param_dist();
+    pg.fig.tight_layout()
+    
     
     simfun = lambda data, dind, parsamples: fitmodel.gen_distances_with_params(
                 data[0], data[1], dind, pars.transform(parsamples), pars.names)
@@ -104,25 +108,16 @@ def run_behavioral_fit(sub,cond,aper,featureType,run,recovery,
     pg = pars.plot_param_dist(ep_mean, ep_cov)
     pg.fig.tight_layout()
     
-    # prior vs. posterior pdfs
-    fig, axes = pars.compare_pdfs(ep_mean, ep_cov, figsize=[10, 6])
-    
-    if(featureType==0):
-        picName = "..//test_model_fit_data//fitPosterior_sub_%d_cond_%d_aper_%d_run_%d_me_final_6.png" % (sub,cond,aper,run)
-    elif(featureType==1):
-        picName = "..//test_model_fit_data//fitPosterior_sub_%d_cond_%d_aper_%d_run_%d_dc_final_6.png" % (sub,cond,aper,run)
+    if(aper==0):
+        picName = "..\\test_model_fit_data\\fitPosterior_sub_%d_cond_%d_aper_%d_run_%d_rw_final_16_3.png" % (sub,cond,aper,run)
+    else:
+        if(featureType==0):
+            picName = "..\\test_model_fit_data\\fitPosterior_sub_%d_cond_%d_aper_%d_run_%d_me_final_16_3.png" % (sub,cond,aper,run)
+        elif(featureType==1):
+            picName = "..\\test_model_fit_data\\fitPosterior_sub_%d_cond_%d_aper_%d_run_%d_dc_final_16_3.png" % (sub,cond,aper,run)
+      
   
-    plt.savefig(picName, bbox_inches='tight')
-    
-    # plot the true values
-    for name, ax in zip(pars.names.values, axes.flatten()[:pars.P]):
-        name, pind = fitmodel.indexedpar_re.match(name).groups()
-        if pind is None:
-            ax.plot(getattr(fitmodel, name), 0, '*k', label='true value')
-        else:
-            ax.plot(getattr(fitmodel, name)[int(pind)], 0, '*k', label='true value')
-            
-    axes[0, 0].legend()
+    plt.savefig(picName,bbox_inches='tight')
     
     # compare the posterior pdfs of the two scales
     if 'scale_0' in pars.names.values and 'scale_1' in pars.names.values:
@@ -156,9 +151,9 @@ def run_behavioral_fit(sub,cond,aper,featureType,run,recovery,
         
         
         if(featureType==0):
-            picName = "..//test_model_fit_data//fitScalePosterior_sub_%d_cond_%d_aper_%d_run_%d_me_cond_final_6.png" % (sub,cond,aper,run)
+            picName = "..\\test_model_fit_data\\fitScalePosterior_sub_%d_cond_%d_aper_%d_run_%d_me_cond_final_16_3.png" % (sub,cond,aper,run)
         elif(featureType==1):
-            picName = "..//test_model_fit_data//fitScalePosterior_sub_%d_cond_%d_aper_%d_run_%d_dc_cond_final_6.png" % (sub,cond,aper,run)
+            picName = "..\\test_model_fit_data\\fitScalePosterior_sub_%d_cond_%d_aper_%d_run_%d_dc_cond_final_16_3.png" % (sub,cond,aper,run)
                 
         
         plt.savefig(picName, bbox_inches='tight')
@@ -167,16 +162,15 @@ def run_behavioral_fit(sub,cond,aper,featureType,run,recovery,
        
     if(aper>0):
         if(featureType==0):
-            saveFileName="..//test_model_fit_data//fitResults_sub_%d_cond_%d_aper_%d_run_%d_me_cond_final_16.mat" % (sub,cond,aper,run)
+            saveFileName="..\\test_model_fit_data\\fitResults_sub_%d_cond_%d_aper_%d_run_%d_me_cond_final_16_3.mat" % (sub,cond,aper,run)
         elif(featureType==1):
-            saveFileName="..//test_model_fit_data//fitResults_sub_%d_cond_%d_aper_%d_run_%d_dc_cond_final_16.mat" % (sub,cond,aper,run)
+            saveFileName="..\\test_model_fit_data\\fitResults_sub_%d_cond_%d_aper_%d_run_%d_dc_cond_final_16_3.mat" % (sub,cond,aper,run)
     else:
-        saveFileName="..//test_model_fit_data//fitResults_sub_%d_cond_%d_aper_%d_run_%d_rw_cond_final_16.mat" % (sub,cond,aper,run)
+        saveFileName="..\\test_model_fit_data\\fitResults_sub_%d_cond_%d_aper_%d_run_%d_rw_cond_final_16_3.mat" % (sub,cond,aper,run)
             
     sio.savemat(saveFileName,mdict={'sub':sub, 'cond':cond,'ep_mean':ep_mean, 'ep_cov':ep_cov, 'ep_logml':ep_logml,
                                     'nacc':nacc,'ntotal':ntotal,'p_0':p_0,'p_1':p_1})                                  
     
-    #picName = "fitData//fitPosterior_sub_%d_cond_%d_aper_%d_new_2.png" % (sub,cond,aper)
     
     
 
@@ -186,9 +180,11 @@ if __name__ == "__main__":
         selSubs=np.array([62,63,64,65,66,67,71,74,76,77,80,82,84,85,86,90,91,92,93,94,95,96,
                           97,100,101,102,104,105,107,109,110,111,112,114,119,120,121,123,124,126,127,128,129,130])
         
+        
+        
         #specifiying the parameters of model fitting
-        conditions=np.array([1])
-        apers=np.array([0,12]) 
+        conditions=np.array([1]) #1 for 0% coherence condition
+        apers=np.array([0,12]) #0 for DDM, 12 for EXaM
         featuresTypes=np.array([0,1]) #0 for motion energy, 1 for dot counts
         recovery=0
                 
@@ -196,8 +192,8 @@ if __name__ == "__main__":
             #reset the counter for model runs in every iteration
             run=1
             while run<=5:        
-                #if the model fitting runs without exceptions go to next iteration
-                try:                
+                try:
+                    #if the model fitting runs without exceptions go to next iteration
                     sub=selSubs[subIdx]
                     cond=conditions[0]                    
                     aper=apers[1]
@@ -210,3 +206,5 @@ if __name__ == "__main__":
                     print('EP-ABC model fitting interrupted, re-runing the model fit')
                     print('-------------------------')
                     pass
+                        
+

@@ -160,21 +160,23 @@ def run_behavioral_fit(sub,cond,aper,featureType,run,recovery,
     
     #%% setup parameters
     pars = pyEPABC.parameters.parameter_container()
-    if aper > 0:
-        pars.add_param('scale', 0, 1, zero())
+
+    if(cond==1 and aper>0):
+        pars.add_param('scale', 0, 0.1,zero())
     else:
-        fitmodel.scale = 0
-#    pars.add_param('scale', 0, 1, gaussprob())
-    #pars.add_param('scale', 0.5, 0.1)
-#    pars.add_param('scalestd', np.log(.1), 1, exponential())
-    pars.add_param('bound', np.log(.1), 1, exponential())
-    #pars.add_param('noisestd', np.log(.1), 1, exponential())
+        pars.add_param('scale', 0.2, 0.2,zero())
+        
+    pars.add_param('scalestd', np.log(.05), 0.5, exponential())
+    pars.add_param('bound', np.log(.05), 1, exponential())
     pars.add_param('bias', 0, 0.5)
+    pars.add_param('biasstd', np.log(0.02), 0.5,exponential())
     pars.add_param('ndtmean', -2, 1,exponential())
     pars.add_param('ndtspread', -2.5, 1, exponential())
     #pars.add_param('leak', -1, 1, gaussprob())
     pars.add_param('lapseprob', -1.65, 1, gaussprob()) # median approx at 0.05
     pars.add_param('lapsetoprob', 0, 1, gaussprob())
+    
+
     
     pg = pars.plot_param_dist();
     pg.fig.tight_layout()
@@ -226,10 +228,6 @@ def run_behavioral_fit(sub,cond,aper,featureType,run,recovery,
     plt.savefig(picName, bbox_inches='tight')
 
     
-    # plot true parameter values for comparison
-#    for pname, ax in zip(pars.names, pg.diag_axes):
-#        ax.plot(np.ones(2)*model.__dict__[pname], [0, 0.1 * ax.get_ylim()[1]], 'r')
-#        ax.set_ylim(bottom=0)
     
     #%% plot fitted RT distribution
     if diagnostic_plots:
@@ -298,10 +296,7 @@ def run_behavioral_fit(sub,cond,aper,featureType,run,recovery,
     sio.savemat(saveFileName,mdict={'sub':sub, 'cond':cond,'ep_mean':ep_mean, 'ep_cov':ep_cov, 'ep_logml':ep_logml,
                                     'nacc':nacc,'ntotal':ntotal,'modes':modes})                                  
     
-    #picName = "fitData//fitPosterior_sub_%d_cond_%d_aper_%d_new_2.png" % (sub,cond,aper)
-    
-    
-
+  
 if __name__ == "__main__":
         
         #selected participants according to the criteria mentioned in the Methods (see manuscript)    
@@ -309,8 +304,8 @@ if __name__ == "__main__":
                   97,100,101,102,104,105,107,109,110,111,112,114])
         
         #specifiying the parameters of model fitting
-        conditions=np.array([1,2,3,4])
-        apers=np.array([0,12]) #0,3,5,12
+        conditions=np.array([1,2,3,4]) # 1 for 0%, 2 for 10%, 3 for 25%, 4 for 35% coherence
+        apers=np.array([0,12]) # 0 for average features, 1 for dot counts
         recovery=0
         featuresTypes=np.array([1]) #0 for motion energy, 1 for dot counts
         
@@ -323,7 +318,7 @@ if __name__ == "__main__":
                         #fit the random walk model only once to the data
                         sub=selSubs[subIdx]
                         cond=conditions[condIdx]                    
-                        aper=apers[0]
+                        aper=apers[1] #1 for dot count
                         featureType=featuresTypes[0]
                         print('running fit for sub: ',sub,' cond: ',cond,' aper: ',aper,'feature: ',featureType,' run: ', run)                    
                         run_behavioral_fit(sub,cond,aper,featureType,run,recovery)  
@@ -335,4 +330,3 @@ if __name__ == "__main__":
                         pass
                         
 
-                

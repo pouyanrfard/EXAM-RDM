@@ -1,5 +1,5 @@
 # Exact Input Modeling of Response Consistency in Perceptual Decision Making
-The code required to reproduce the results of the study "Fard et. al (2021), Spatiotemporal Modeling of Response Consistency with Incoherent Motion Stimuli in Perceptual Decision Making"
+The code required to reproduce the results of the study "Fard PR, Bitzer S, Pannasch S and Kiebel SJ (2022) Stochastic Motion Stimuli Influence Perceptual Choices in Human Participants. Front. Neurosci. 15:749728. doi: 10.3389/fnins.2021.749728"
 
 Author: Pouyan R. Fard
 
